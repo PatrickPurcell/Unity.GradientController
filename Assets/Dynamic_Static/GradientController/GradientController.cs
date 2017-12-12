@@ -174,24 +174,16 @@ namespace Dynamic_Static
         private void Update()
         {
             MeshRenderer.GetPropertyBlock(MaterialPropertyBlock);
-            Vector3 position0 = Vector3.zero;
             for (int i = 0; i < Count; ++i)
             {
                 var handle = this[i];
                 MaterialPropertyBlock.SetColor(ColorPropertyNames[i], handle.Color);
-                var position = transform.worldToLocalMatrix * handle.transform.position;
-                MaterialPropertyBlock.SetVector(HandlePropertyNames[i], position);
-                if (i == 0)
-                {
-                    position0 = position;
-                }
-                else
-                {
-                    var length = Vector3.Distance(position0, position);
-                    MaterialPropertyBlock.SetFloat(LengthPropertyName, length);
-                    MeshRenderer.SetPropertyBlock(MaterialPropertyBlock);
-                }
+                MaterialPropertyBlock.SetVector(HandlePropertyNames[i], handle.transform.position);
             }
+
+            var length = Vector3.Distance(this[0].transform.position, this[1].transform.position);
+            MaterialPropertyBlock.SetFloat(LengthPropertyName, length);
+            MeshRenderer.SetPropertyBlock(MaterialPropertyBlock);
         }
         #endregion
 

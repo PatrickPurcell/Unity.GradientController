@@ -24,22 +24,20 @@ namespace Dynamic_Static
         : MonoBehaviour
     {
         #region CONSTANTS
-        private static readonly string DefaultAnchorName = "GradientHandlesAnchor";
+        private static readonly string AnchorName = "GradientHandlesAnchor";
         private static readonly string OpaqueMaterialName = "GradientControllerOpaque";
         private static readonly string TransparentMaterialName = "GradientControllerTransparent";
         private static readonly string[] ColorPropertyNames = new string[] { "_Color0", "_Color1" };
         private static readonly string[] HandlePropertyNames = new string[] { "_Handle0", "_Handle1" };
-        private static readonly Vector3[] DefaultHandlePositions = new Vector3[] {
-            new Vector3(0,  1.5f, 0),
-            new Vector3(0, -1.5f, 0)
-        };
+        private static readonly string LengthPropertyName = "_Length";
+        private static readonly Vector3 DefaultHandlePosition = new Vector3(0, 1.5f, 0);
         #endregion
 
         #region FIELDS
         [SerializeField] private GameObject anchor;
         [SerializeField] private GradientHandle handle0;
         [SerializeField] private GradientHandle handle1;
-        private MaterialPropertyBlock materialProperties;
+        private MaterialPropertyBlock materialPropertyBlock;
         private MeshRenderer meshRenderer;
         #if UNITY_EDITOR
         [SerializeField] private bool _transparent = false;
@@ -61,7 +59,7 @@ namespace Dynamic_Static
             {
                 if (anchor == null)
                 {
-                    anchor = new GameObject(DefaultAnchorName);
+                    anchor = new GameObject(AnchorName);
                     anchor.transform.parent = transform;
                     anchor.transform.localPosition = Vector3.zero;
                 }
@@ -89,8 +87,8 @@ namespace Dynamic_Static
             {
                 switch (i)
                 {
-                    case 0: return ValidateHandle(ref handle0, DefaultHandlePositions[0]);
-                    case 1: return ValidateHandle(ref handle1, DefaultHandlePositions[1]);
+                    case 0: return ValidateHandle(ref handle0, DefaultHandlePosition);
+                    case 1: return ValidateHandle(ref handle1, -DefaultHandlePosition);
                     default: throw new ArgumentOutOfRangeException();
                 }
             }
@@ -107,14 +105,14 @@ namespace Dynamic_Static
             }
         }
 
-        private MaterialPropertyBlock MaterialProperties
+        private MaterialPropertyBlock MaterialPropertyBlock
         {
             get
             {
                 return
-                    materialProperties == null ?
-                    materialProperties = new MaterialPropertyBlock() :
-                    materialProperties;
+                    materialPropertyBlock == null ?
+                    materialPropertyBlock = new MaterialPropertyBlock() :
+                    materialPropertyBlock;
             }
         }
         #endregion
@@ -131,8 +129,8 @@ namespace Dynamic_Static
             }
             #endif
 
-            ValidateHandle(ref handle0, DefaultHandlePositions[0]);
-            ValidateHandle(ref handle1, DefaultHandlePositions[1]);
+            ValidateHandle(ref handle0, DefaultHandlePosition);
+            ValidateHandle(ref handle1, -DefaultHandlePosition);
         }
         #endregion
 
@@ -175,16 +173,25 @@ namespace Dynamic_Static
         #region UPDATE
         private void Update()
         {
-            MeshRenderer.GetPropertyBlock(MaterialProperties);
+            MeshRenderer.GetPropertyBlock(MaterialPropertyBlock);
+            Vector3 position0 = Vector3.zero;
             for (int i = 0; i < Count; ++i)
             {
                 var handle = this[i];
-                MaterialProperties.SetColor(ColorPropertyNames[i], handle.Color);
+                MaterialPropertyBlock.SetColor(ColorPropertyNames[i], handle.Color);
                 var position = transform.worldToLocalMatrix * handle.transform.position;
-                MaterialProperties.SetVector(HandlePropertyNames[i], position);
+                MaterialPropertyBlock.SetVector(HandlePropertyNames[i], position);
+                if (i == 0)
+                {
+                    position0 = position;
+                }
+                else
+                {
+                    var length = Vector3.Distance(position0, position);
+                    MaterialPropertyBlock.SetFloat(LengthPropertyName, length);
+                    MeshRenderer.SetPropertyBlock(MaterialPropertyBlock);
+                }
             }
-
-            MeshRenderer.SetPropertyBlock(MaterialProperties);
         }
         #endregion
 

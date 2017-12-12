@@ -20,6 +20,7 @@ Shader "Dynamic_Static/Gradient(Transparent)"
         [PerRendererData]_Handle0("Handle 0", Vector) = (0, 0, 0, 1)
         [PerRendererData]_Color1("Color 1", color) = (0.5, 0.5, 0.5, 1)
         [PerRendererData]_Handle1("Handle 1", Vector) = (0, 0, 0, 1)
+        [PerRendererData]_Length("Length", Float) = 0
     }
 
     SubShader

@@ -16,10 +16,10 @@ Shader "Dynamic_Static/Gradient(Transparent)"
         _MainTex("Albedo (RGB)", 2D) = "white" { }
         _Glossiness("Smoothness", Range(0, 1)) = 0.5
         _Metallic("Metallic", Range(0, 1)) = 0.0
-        _Color0("Color 0", color) = (0.5, 0.5, 0.5, 1)
-        _Handle0("Handle 0", Vector) = (0, 0, 0, 1)
-        _Color1("Color 1", color) = (0.5, 0.5, 0.5, 1)
-        _Handle1("Handle 1", Vector) = (0, 0, 0, 1)
+        [PerRendererData]_Color0("Color 0", color) = (0.5, 0.5, 0.5, 1)
+        [PerRendererData]_Handle0("Handle 0", Vector) = (0, 0, 0, 1)
+        [PerRendererData]_Color1("Color 1", color) = (0.5, 0.5, 0.5, 1)
+        [PerRendererData]_Handle1("Handle 1", Vector) = (0, 0, 0, 1)
     }
 
     SubShader
@@ -30,7 +30,7 @@ Shader "Dynamic_Static/Gradient(Transparent)"
         CGPROGRAM
         #pragma surface surf Standard fullforwardshadows alpha:fade
         #pragma target 3.0
-        #include "Gradient.cginc"
+        #include "GradientController.cginc"
         ENDCG
     }
     FallBack "Diffuse"
